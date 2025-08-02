@@ -13,6 +13,21 @@
     <form method="POST" action="{{ route('bills.store') }}">
         @csrf
 
+        <span class="error">
+          @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+
+
+        </span>
+
         <!-- Product Selection and Quantity -->
         <table class="table table-bordered" id="products-container">
             <thead>

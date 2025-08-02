@@ -1,87 +1,73 @@
-@php
-    use App\Http\Controllers\BubbleSortController;
-
-     $sortedProducts = BubbleSortController::getSorted($products->toArray(), 'asc');
-@endphp
-
 @extends('./layout/layout')
-<style>
-    .active{
-        background-color: pink;
-    }
-</style>
 
 @section('content')
+    <!-- Bootstrap Container -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0">📦 Product List</h2>
+            <a href="{{ route('products.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Add Product
+            </a>
+        </div>
 
-    <h1>Product List</h1>
-    <a href="{{ route('products.create') }}">Add New Product</a>
-    <form method="GET" action="{{ route('products.search') }}">
-        
-    <input type="text" name="query" placeholder="Search products..." required>
-    <button type="submit">Search</button>
-</form>
-    
-    <table border="1">
-        <thead>
-            <tr>
-                <th>
-                    
-                        Name
-                    
-                </th>
-               <th>
-                     Category
-                </th>
-              <th>
-                       Price
-                </th>
-                <th>Stock Quantity</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{-- //using buuble sort to sort according to alphabets --}}
-          <script>
-    function setActiveButton(clickedButton) {
-      // Get all buttons
-      const buttons = document.querySelectorAll('.btn');
+        <div class="card shadow-sm bg-white">
+            <div class="card-body">
+                <table id="productsTable" class="table table-hover table-bordered table-striped" style="width:100%">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price (Rs.)</th>
+                            <th>Stock</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($products as $product)
+                            <tr>
+                                <td>{{ $product->name }}</td>
+                                <td>{{ $product->category->name ?? 'N/A' }}</td>
+                                <td>{{ number_format($product->price, 2) }}</td>
+                                <td>{{ $product->stock_quantity }}</td>
+                                <td class="text-center">
+                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-outline-info me-1" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-outline-warning me-1" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+@endsection
 
-      // Remove 'active' class from all buttons
-      buttons.forEach(button => {
-        button.classList.remove('active');
-      });
-
-      // Add 'active' class to clicked button
-      clickedButton.classList.add('active');
-    }
-    </script>
-            
-
-@php
-    use App\Models\Product;
-
-$eloquentCollection = Product::hydrate($sortedProducts);
-
-@endphp
-
-            @foreach ($eloquentCollection as $product)
-                <tr>
-                    <td>{{ $product->name }}</td>
-                    <td>{{ $product->category->name }}</td>
-                    <td>{{ $product->price }}</td>
-                    <td>{{ $product->stock_quantity }}</td>
-                    <td>
-                        <a href="{{ route('products.show', $product->id) }}">View</a>|
-                        <a href="{{ route('products.edit', $product->id)}}">Edit</a>
-                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    @endsection
+@section('scripts')
+<script>
+    $(document).ready(function () {
+        $('#productsTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "🔍 Search categories..."
+            },
+            columnDefs: [
+                { orderable: false, targets: [2] }
+            ]
+        });
+    });
+</script>
+@endsection

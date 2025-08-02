@@ -8,4 +8,9 @@ class Bill extends Model
 {
     protected $guarded=[];
     protected $table='bills';
+
+    public function items()
+{
+    return $this->hasMany(BillItem::class);
+}
 }

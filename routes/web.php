@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\AnalyticsContrller;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\mainController;
@@ -13,6 +13,10 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Route;
 
+// routes/web.php
+
+
+
 
 
 Route::get('/', [mainController::class, 'index'])->name('MyHome');
@@ -23,12 +27,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware(EnsureUserIsLoggedIn::class)->group(function(){
 
     Route::resource("products",ProductController::class);
+    // Route::get('/search',[ProductController::class, 'search'])->name("products.search");
 
 Route::resource("category",CategoryController::class);
 
 Route::controller(BillController::class)->group(function(){
     Route::get('/bills','create')->name('bills.create');
     Route::post('/store','store')->name('bills.store');
+    Route::get("/bills/print/{id}",'print')->name('bills.print');
+   
     // Route::get('/bills/index','index')->name('bills.index');
 });
 Route::controller(mainController::class)->group(function(){
@@ -37,15 +44,19 @@ Route::controller(mainController::class)->group(function(){
   Route::get("sell","sells")->name('sell');
 
 });
-Route::get('/search',[ProductController::class, 'search'])->name("products.search");
+// 
 
 Route::controller(SalesController::class)->group(function(){
     Route::get("/revenueByCategory",'revenueByCategory');
     Route::get("/topSoldItemsByUnit",'topSoldItemsByUnit');
     Route::get("/topSoldItemsByRevenue",'topSoldItemsByRevenue');
     Route::get("/total-sales-per-month",'totalSalesPerMonth');
+    Route::get("/get-monthly-sales",'getMonthlySalesData');
+    Route::get("/get-weekly-sales",'getWeeklySalesData');
+    Route::get("/get-daily-sales",'getTodaySalesData');
 
 });
+Route::get("/analytics",[AnalyticsContrller::class,'analyticsDashboard'])->name('analytics');
 
 Route::middleware([
     'auth:sanctum',
@@ -58,5 +69,22 @@ Route::middleware([
 });
 Route::get('/predict-sales', [SalesPredictionController::class, 'predictNextMonthSales']);
 
+Route::controller(UserController::class)->group(function(){
+    Route::get('/user/dashboard','dashboard')->name('user.dashboard');
+    Route::get('/user/createNewUser','showCreateUserForm')->name('user.showCreate');
+    Route::post('/user/store','storeUser')->name('users.store');
+
+    Route::get('/user/edit/{id}','showEditUserForm')->name('user.edit');
+    Route::put('/user/update/{user}','update')->name('users.update');
+
+    Route::get('/user/changePassword/{id}','changePasswordForm')->name('users.showChangePasswordForm');
+    Route::put('/user/edit/password/{user}','updatePassword')->name('users.updatePassword');
+
+
+    Route::post('/user/{user}/stauts','userActivateOrDeactivate')->name('user.status');
+    
+});
+
 
 });
+

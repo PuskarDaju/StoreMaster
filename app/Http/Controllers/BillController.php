@@ -12,45 +12,70 @@ use Illuminate\Support\Facades\Auth;
 
 class BillController extends Controller
 {
-    //
-    public function store(Request $request)
-{
+    //use App\Models\Bill;
 
+
+public function store(Request $request)
+{
+    $productIds = $request->input('product_id');
+    for($i=0;$i<count($productIds);$i++){
+        $productId=$productIds[$i];
+         $product = Product::find($productId);
+         $quantities=$request->input('quantity');
+         $requestedQuantity=$quantities[$i];
+         
+         if (!$product || $product->stock_quantity< $requestedQuantity) {
+        return redirect()->back()->withInput()->withErrors(['message' => 'Insufficient stock or product not found.']);
     
-  
+    }
+}
+    DB::beginTransaction();
 
     try {
+        // Step 1: Create Bill
         $bill = Bill::create([
             'bill_number' => 'BIL-' . strtoupper(uniqid()),
-            'cashier_id' => Auth::user()->id,
+            'cashier_id' => Auth::id(),
             'total_amount' => $request->total_amount,
             'paid_amount' => $request->paid_amount,
             'change_amount' => $request->paid_amount - $request->total_amount,
         ]);
 
-        dd($request);
+        // Step 2: Handle items (based on indexed arrays)
+        
+        
+        $rates      = $request->input('rate');
 
-        // foreach ($request->items as $item) {
-        //     BillItem::create([
-        //         'bill_id' => $bill->id,
-        //         'product_id' => $item['product_id'],
-        //         'quantity' => $item['quantity'],
-        //         'price' => $item['price'],
-        //         'subtotal' => $item['price'] * $item['quantity'],
-        //     ]);
+        for ($i = 0; $i < count($productIds); $i++) {
+            $productId = $productIds[$i];
+            $quantity  = $quantities[$i];
+            $rate      = $rates[$i];
+            $subtotal  = $quantity * $rate;
 
-        //     // Optional: Decrease stock
-        //     // Product::where('id', $item['product_id'])->decrement('stock', $item['quantity']);
-        // }
+            BillItem::create([
+                'bill_id'    => $bill->id,
+                'product_id' => $productId,
+                'quantity'   => $quantity,
+                'price'      => $rate,
+                'subtotal'   => $subtotal,
+            ]);
 
-      
-       return redirect('/products');
+            // Optional: Reduce stock
+            Product::where('id', $productId)->decrement('stock_quantity', $quantity);
+        }
+
+        DB::commit();
+
+        // Step 3: Redirect to the print page
+        return redirect()->route('bills.print', $bill->id);
+
     } catch (\Exception $e) {
         DB::rollBack();
-        return back()->withErrors(['error' => $e->getMessage()]);
+        // return back()->with('error', 'Bill creation failed: ' . $e->getMessage());
+        dd($e->getMessage());
     }
-
 }
+
 // public function index()
 // {
 //     // Show a list of bills
@@ -70,5 +95,10 @@ public function downloadPDF($id)
     $bill = Bill::with('items.product')->findOrFail($id);
     $pdf = Pdf::loadView('bills.invoice_pdf', compact('bill'));
     return $pdf->download('Bill-' . $bill->bill_number . '.pdf');
+}
+public function print($id) {
+      $bill = Bill::with('items.product')->findOrFail($id);
+    return view('billing.print', compact('bill'));
+    
 }
 }

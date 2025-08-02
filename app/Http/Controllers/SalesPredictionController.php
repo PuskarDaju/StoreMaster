@@ -62,11 +62,13 @@ class SalesPredictionController extends Controller
     $nextMonthIndex = 16;
     $predictedSales = $m * $nextMonthIndex + $b;
 
-    return response()->json([
-        'months_index' => $x,
-        'monthly_sales' => $y,
-        'predicted_next_month_sales' => round($predictedSales, 2),
-    ]);
+    // return response()->json([
+    //     'months_index' => $x,
+    //     'monthly_sales' => $y,
+    //     'predicted_next_month_sales' => round($predictedSales, 2),
+    // ]);
+
+    return round($predictedSales,2);
 }
 
 

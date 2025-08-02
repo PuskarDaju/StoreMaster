@@ -46,14 +46,29 @@
 
         <div>
             <label for="change_amount">Change:</label>
-            <input type="number" name="change_amount" id="change_amount" value="0" readonly>
+            <input type="number" name="change_amount" id="change_amount" value="-1" readonly>
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Generate Bill</button>
+        <button type="submit" id="submitBtn" class="btn btn-primary">Generate Bill</button>
     </form>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    let myBtn = document.getElementById("submitBtn");
+    let change = document.getElementById("change_amount");
+
+    change.addEventListener("input", function () {
+        let changeValue = parseFloat(change.value);
+
+        if (changeValue < 0) {
+            myBtn.disabled = true;
+        } else {
+            myBtn.disabled = false;
+        }
+    });
+</script>
 
 @endsection

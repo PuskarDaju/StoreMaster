@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bill;
 use App\Models\BillItem;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -79,4 +80,52 @@ public function totalSalesPerMonth()
 
     return response()->json($salesPerMonth);
 }
+
+
+public function getMonthlySalesData()
+{
+    $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+    $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
+
+    $salesData = DB::table('bills')
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_amount) as total_sales'))
+        ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+        ->groupBy(DB::raw('DATE(created_at)'))
+        ->orderBy('date')
+        ->get();
+
+    return response()->json($salesData);
+}
+public function getWeeklySalesData()
+{
+    // Don't use toDateString(); keep full datetime
+    $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
+    $endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY)->endOfDay();
+
+    $salesData = DB::table('bills')
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_amount) as total_sales'))
+        ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+        ->groupBy(DB::raw('DATE(created_at)'))
+        ->orderBy('date')
+        ->get();
+
+    return response()->json($salesData);
+}
+
+
+public function getTodaySalesData()
+{
+    $today = Carbon::today()->toDateString();
+
+    $salesData = DB::table('bills')
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_amount) as total_sales'))
+        ->whereDate('created_at', $today)
+        ->groupBy(DB::raw('DATE(created_at)'))
+        ->get();
+
+    return response()->json($salesData);
+}
+
+
+
 }

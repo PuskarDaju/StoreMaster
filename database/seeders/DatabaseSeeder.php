@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Http\Controllers\SalesController;
 use App\Models\Bill;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
          
             ProductSeeder::class,
+            UseSeeder::class,
             
 
             regSeeder::class
