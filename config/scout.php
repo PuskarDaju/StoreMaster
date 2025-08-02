@@ -112,13 +112,7 @@ return [
     |
     */
 
-        // config/scout.php should have:
-'algolia' => [
-    'id' => env('ALGOLIA_APP_ID', 'PET931CLF0'),
-    'secret' => env('ALGOLIA_SECRET', '5dde65d7d2e71c43dae457520c60dde4'),
 
-        
-    ],
 
     /*
     |--------------------------------------------------------------------------
