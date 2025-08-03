@@ -1,3 +1,10 @@
+<?php
+use App\Http\Controllers\AdminChecker;
+$checker=new AdminChecker();
+$admin=$checker->checkAdmin();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,13 +36,25 @@
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md p-4 min-h-screen">
             <nav class="space-y-3">
-                <a href="{{ route('products.index') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Dashboard</a>
+                @if ($admin)
+                    <a href="{{ route('products.index') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Dashboard</a>
+                
+                    
+                @else
+                 <a href="{{ route('user.dashboard') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Dashboard</a>
+                    
+                @endif
+                    
+                
                 <a href="{{ route('products.index') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Manage Products</a>
                 <a href="{{ route('category.index') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Manage Categories</a>
-                <a href="{{ route('bills.create') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Billing </a>
-                <a href="{{ route('sell') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Sales </a>
+                <a href="{{ route('bills.create') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Billing
+                     </a>
+               @if($admin)
+                 <a href="{{ route('sell') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Sales </a>
                 <a href="{{ route('analytics') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">Reports & Analytics</a>
                 <a href="{{ route('user.dashboard') }}" class="block py-2 px-4 hover:bg-blue-100 rounded">User Management</a>
+               @endif
                 <form action="{{ route('logout') }}" method="POST" class="pt-2">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger w-100">Logout</button>
