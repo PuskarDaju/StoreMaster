@@ -146,7 +146,8 @@ function loadMonthlySales(topType) {
                     break;
 
                 case 'this_month':
-                    labels = response.map(item => 'Day ' + item.day); // Days: Day 1, Day 2, ...
+                    $n=1;
+                    labels = response.map(item => 'Week ' + $n++); // Days: Day 1, Day 2, ...
                     totalSales = response.map(item => item.total_sales);
                     break;
 
